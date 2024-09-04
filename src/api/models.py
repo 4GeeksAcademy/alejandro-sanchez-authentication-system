@@ -1,12 +1,16 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import create_access_token
 
 db = SQLAlchemy()
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(80), unique=False, nullable=False)
-    is_active = db.Column(db.Boolean(), unique=False, nullable=False)
+    password = db.Column(db.String(128), nullable=False)
+    is_active = db.Column(db.Boolean(), nullable=False, default=True)
+
+    def create_token(self):
+        return create_access_token(identity=self.id)
 
     def __repr__(self):
         return f'<User {self.email}>'
@@ -15,5 +19,5 @@ class User(db.Model):
         return {
             "id": self.id,
             "email": self.email,
-            # do not serialize the password, its a security breach
+            "is_active": self.is_active
         }
